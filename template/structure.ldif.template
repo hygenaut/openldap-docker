@@ -1,0 +1,85 @@
+# 基础目录结构
+dn: dc=example,dc=com
+objectClass: top
+objectClass: dcObject
+objectClass: organization
+dc: example
+o: Example Organization
+
+# 用户 OU
+dn: ou=people,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: people
+
+# 管理员用户（admin 组）
+dn: uid=admin,ou=people,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: admin
+cn: Admin User
+sn: Admin
+givenName: Admin
+mail: admin@example.com
+uidNumber: 10000
+gidNumber: 10000
+homeDirectory: /home/admin
+loginShell: /bin/bash
+userPassword: ChangeMe123!
+description: Administrator
+
+# 群组 OU
+dn: ou=groups,dc=example,dc=com
+objectClass: top
+objectClass: organizationalUnit
+ou: groups
+
+# 管理员组
+dn: cn=admin,ou=groups,dc=example,dc=com
+objectClass: posixGroup
+cn: admin
+gidNumber: 10000
+memberUid: admin
+description: System Administrators
+
+# 普通用户组
+dn: cn=user,ou=groups,dc=example,dc=com
+objectClass: posixGroup
+cn: user
+gidNumber: 11000
+description: Regular user
+
+# 复制用户组
+dn: cn=replica,ou=groups,dc=example,dc=com
+objectClass: posixGroup
+cn: replica
+gidNumber: 12000
+description: Replication user
+
+# 群晖兼容别名（cn=users 指向 ou=people）
+dn: cn=users,dc=example,dc=com
+objectClass: alias
+objectClass: extensibleObject
+aliasedObjectName: ou=people,dc=example,dc=com
+cn: users
+
+# FreeIPA 兼容结构
+dn: cn=accounts,dc=example,dc=com
+objectClass: top
+objectClass: nsContainer
+cn: accounts
+
+# FreeIPA 用户别名
+dn: cn=users,cn=accounts,dc=example,dc=com
+objectClass: alias
+objectClass: extensibleObject
+aliasedObjectName: ou=people,dc=example,dc=com
+cn: users
+
+# FreeIPA 群组别名
+dn: cn=groups,cn=accounts,dc=example,dc=com
+objectClass: alias
+objectClass: extensibleObject
+aliasedObjectName: ou=groups,dc=example,dc=com
+cn: groups

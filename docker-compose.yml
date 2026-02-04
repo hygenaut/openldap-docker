@@ -1,0 +1,286 @@
+services:
+  openldap-server:
+    image: public.ecr.aws/bitnami/openldap:latest
+    container_name: openldap-server
+    hostname: ldap.${LDAP_DOMAIN}
+    restart: unless-stopped
+    environment:
+      # ==================== 基本配置 ====================
+      # OpenLDAP 监听端口（非特权端口，容器内部端口）
+      - LDAP_PORT_NUMBER=1389
+      
+      # LDAP 树的根 DN（baseDN）
+      - LDAP_ROOT=${LDAP_ROOT}
+      
+      # 数据库管理员用户名
+      - LDAP_ADMIN_USERNAME=${LDAP_ADMIN_USERNAME}
+      
+      # 数据库管理员密码（最少8位）
+      - LDAP_ADMIN_PASSWORD=${LDAP_ADMIN_PASSWORD}
+      
+      # 数据库管理员密码文件路径（可选，会覆盖 LDAP_ADMIN_PASSWORD）
+      # - LDAP_ADMIN_PASSWORD_FILE=/run/secrets/ldap_admin_password
+      
+      # 数据库管理员完整 DN（可选，默认为 cn=admin,{LDAP_ROOT}）
+      # - LDAP_ADMIN_DN=cn=admin,dc=datahub,dc=family
+      
+      # ==================== 配置管理员 ====================
+      # 是否启用配置管理员（用于管理 cn=config）
+      - LDAP_CONFIG_ADMIN_ENABLED=yes
+      
+      # 配置管理员用户名
+      - LDAP_CONFIG_ADMIN_USERNAME=${LDAP_CONFIG_ADMIN_USERNAME}
+      
+      # 配置管理员密码
+      - LDAP_CONFIG_ADMIN_PASSWORD=${LDAP_CONFIG_ADMIN_PASSWORD}
+      
+      # 配置管理员密码文件路径（可选）
+      # - LDAP_CONFIG_ADMIN_PASSWORD_FILE=/run/secrets/ldap_config_password
+      
+      # ==================== 用户和组配置 ====================
+      # 要创建的用户列表（逗号分隔，留空表示不创建）
+      # - LDAP_USERS=user1,user2,user3
+      
+      # 用户密码列表（逗号分隔，与 LDAP_USERS 对应）
+      # - LDAP_PASSWORDS=User1@123,User2@123,User3@123
+      
+      # 用户组织单位名称
+      # - LDAP_USER_OU=users
+      
+      # 组组织单位名称
+      # - LDAP_GROUP_OU=groups
+      
+      # 默认用户组名称（自动创建的用户会加入此组）
+      # - LDAP_GROUP=readers
+      
+      # ==================== 架构和树配置 ====================
+      # 是否添加额外架构
+      - LDAP_ADD_SCHEMAS=yes
+      
+      # 要加载的额外架构（逗号分隔）
+      - LDAP_EXTRA_SCHEMAS=cosine, inetorgperson, nis
+      
+      # 是否跳过创建默认 LDAP 树（使用自定义 LDIF 时设为 yes）
+      - LDAP_SKIP_DEFAULT_TREE=yes
+      
+      # 自定义 LDIF 文件目录（只加载 .ldif 文件）
+      - LDAP_CUSTOM_LDIF_DIR=/ldifs
+      
+      # 自定义架构文件路径（可选）
+      # - LDAP_CUSTOM_SCHEMA_FILE=/schema/custom.ldif
+      
+      # 自定义架构文件目录（可选）
+      - LDAP_CUSTOM_SCHEMA_DIR=/schemas
+      
+      # ==================== 系统配置 ====================
+      # 最大打开文件描述符数
+      - LDAP_ULIMIT_NOFILES=1024
+      
+      # 是否允许匿名绑定
+      - LDAP_ALLOW_ANON_BINDING=no
+      
+      # 日志级别（256=stats, 详见 OpenLDAP 文档）
+      - LDAP_LOGLEVEL=256
+      
+      # 密码哈希算法（{SSHA}, {SHA}, {SMD5}, {MD5}, {CRYPT}, {CLEARTEXT}）
+      - LDAP_PASSWORD_HASH={SSHA}
+      
+      # ==================== 密码策略 ====================
+      # 是否启用密码策略模块
+      - LDAP_CONFIGURE_PPOLICY=yes
+      
+      # 锁定账户的绑定尝试是否返回错误
+      - LDAP_PPOLICY_USE_LOCKOUT=yes
+      
+      # 是否自动哈希明文密码
+      - LDAP_PPOLICY_HASH_CLEARTEXT=yes
+      
+      # ==================== TLS/SSL 配置 ====================
+      # 是否启用 TLS
+      - LDAP_ENABLE_TLS=${LDAP_ENABLE_TLS}
+      
+      # 是否强制使用 TLS（设为 no 以支持 LDAP/LDAPS/STARTTLS 三种方式）
+      - LDAP_REQUIRE_TLS=${LDAP_REQUIRE_TLS}
+      
+      # LDAPS 端口（容器内部端口）
+      - LDAP_LDAPS_PORT_NUMBER=1636
+      
+      # TLS 证书文件路径
+      - LDAP_TLS_CERT_FILE=/opt/bitnami/openldap/certs/openldap.crt
+      
+      # TLS 密钥文件路径
+      - LDAP_TLS_KEY_FILE=/opt/bitnami/openldap/certs/openldap.key
+      
+      # TLS CA 证书文件路径
+      - LDAP_TLS_CA_FILE=/opt/bitnami/openldap/certs/openldapCA.crt
+      
+      # TLS DH 参数文件路径（可选）
+      # - LDAP_TLS_DH_PARAMS_FILE=/opt/bitnami/openldap/certs/dhparam.pem
+      
+      # ==================== 代理协议（负载均衡器） ====================
+      # 是否启用代理协议支持（仅在使用负载均衡器时启用）
+      - LDAP_ENABLE_PROXYPROTO=no
+      
+      # 代理协议端口（默认使用 LDAP_PORT_NUMBER）
+      # - LDAP_PROXYPROTO_PORT_NUMBER=1389
+      
+      # 代理协议 LDAPS 端口（默认使用 LDAP_LDAPS_PORT_NUMBER）
+      # - LDAP_PROXYPROTO_LDAPS_PORT_NUMBER=1636
+      
+      # ==================== 访问日志覆盖 ====================
+      # 是否启用访问日志
+      - LDAP_ENABLE_ACCESSLOG=yes
+      
+      # 访问日志数据库管理员用户名
+      - LDAP_ACCESSLOG_ADMIN_USERNAME=${LDAP_ACCESSLOG_ADMIN_USERNAME}
+      
+      # 访问日志数据库管理员密码
+      - LDAP_ACCESSLOG_ADMIN_PASSWORD=${LDAP_ACCESSLOG_ADMIN_PASSWORD}
+      
+      # 访问日志数据库 DN
+      - LDAP_ACCESSLOG_DB=cn=accesslog
+      
+      # 要记录的操作类型（writes, reads, session, all）
+      - LDAP_ACCESSLOG_LOGOPS=all
+      
+      # 是否记录成功的操作
+      - LDAP_ACCESSLOG_LOGSUCCESS=TRUE
+      
+      # 日志清除策略（格式：dd+hh:mm）
+      - LDAP_ACCESSLOG_LOGPURGE=90+00:00 01+00:00
+      
+      # 要记录的条目过滤器
+      - LDAP_ACCESSLOG_LOGOLD=(objectClass=*)
+      
+      # 要记录的属性
+      - LDAP_ACCESSLOG_LOGOLDATTR=objectClass
+      
+      # ==================== 同步提供者覆盖（主从复制） ====================
+      # 是否启用同步提供者（主服务器需要）
+      - LDAP_ENABLE_SYNCPROV=yes
+      
+      # 检查点频率（操作数 分钟数）
+      - LDAP_SYNCPROV_CHECKPOINT=10 1
+      
+      # 会话日志最大条目数
+      - LDAP_SYNCPROV_SESSIONLOG=100
+      
+      # ==================== FIPS 配置 ====================
+      # OpenSSL 是否运行在 FIPS 模式
+      - OPENSSL_FIPS=yes
+      
+      # ==================== 调试配置 ====================
+      # 是否启用调试模式（显示详细日志）
+      - BITNAMI_DEBUG=${BITNAMI_DEBUG}
+      
+    # 端口不暴露到主机，仅容器间通信
+    expose:
+      - "1389"   # LDAP 端口
+      - "1636"   # LDAPS 端口
+      
+    volumes:
+      # 数据持久化目录
+      - ./openldap-data/openldap:/bitnami/openldap
+      
+      # 自定义 LDIF 文件目录
+      - ./ldifs:/ldifs
+      
+      # 转换后的 Schema LDIF 文件目录
+      - ./custom_ldifs:/custom_ldifs
+      
+      # 初始化脚本目录（可选）
+      - ./init-scripts:/docker-entrypoint-initdb.d
+      
+      # TLS 证书目录（可选）
+      - ./certs:/opt/bitnami/openldap/certs
+      
+      # 自定义架构目录（可选）
+      - ./schemas:/schemas
+
+  lam:
+    image: ldapaccountmanager/lam:latest
+    container_name: lam
+    hostname: lam.${LDAP_DOMAIN}
+    restart: unless-stopped
+    environment:
+      # ==================== LAM 核心配置 ====================
+      # 是否跳过自动配置（true=手动配置，false=自动配置）
+      - LAM_SKIP_PRECONFIGURE=false
+      
+      # LAM 管理界面主密码（用于登录配置界面）
+      - LAM_PASSWORD=${LAM_PASSWORD:-lam}
+      
+      # LAM 界面语言（zh_CN=简体中文，en_US=英文，de_DE=德语等）
+      - LAM_LANG=zh_CN
+      
+      # 是否运行定时任务（LAM Pro 功能）
+      - LAM_CONFIGURE_CRON=true
+      
+      # ==================== LDAP 连接配置 ====================
+      # LDAP 域名（会自动转换为 dc=xxx,dc=xxx 格式）
+      - LDAP_DOMAIN=${LDAP_DOMAIN}
+      
+      # LDAP 基础 DN（覆盖 LDAP_DOMAIN 生成的值）
+      - LDAP_BASE_DN=${LDAP_ROOT}
+      
+      # LDAP 用户所在的 DN
+      - LDAP_USERS_DN=ou=people,${LDAP_ROOT}
+      
+      # LDAP 组所在的 DN
+      - LDAP_GROUPS_DN=ou=groups,${LDAP_ROOT}
+      
+      # LDAP 服务器地址（支持 ldap:// 或 ldaps://）
+      - LDAP_SERVER=ldap://openldap-server:1389
+      
+      # LDAP 管理员 DN（LAM 用此账号连接 LDAP）
+      - LDAP_USER=cn=${LDAP_ADMIN_USERNAME},${LDAP_ROOT}
+      
+      # ==================== 配置存储方式 ====================
+      # 配置数据库类型（files=文件存储，mysql=MySQL 存储）
+      - LAM_CONFIGURATION_DATABASE=files
+      
+      # MySQL 服务器地址（仅当 LAM_CONFIGURATION_DATABASE=mysql 时使用）
+      # - LAM_CONFIGURATION_HOST=mysql
+      
+      # MySQL 端口（仅当 LAM_CONFIGURATION_DATABASE=mysql 时使用）
+      # - LAM_CONFIGURATION_PORT=3306
+      
+      # MySQL 用户名（仅当 LAM_CONFIGURATION_DATABASE=mysql 时使用）
+      # - LAM_CONFIGURATION_USER=lam
+      
+      # MySQL 密码（仅当 LAM_CONFIGURATION_DATABASE=mysql 时使用）
+      # - LAM_CONFIGURATION_PASSWORD=lampass
+      
+      # MySQL 数据库名（仅当 LAM_CONFIGURATION_DATABASE=mysql 时使用）
+      # - LAM_CONFIGURATION_DATABASE_NAME=lam
+      
+      # ==================== 高级配置 ====================
+      # 禁用 TLS 证书检查（仅开发环境使用，生产环境应设为 false）
+      - LAM_DISABLE_TLS_CHECK=false
+      
+      # LAM Pro 许可证（多行许可证可以删除换行符）
+      # - LAM_LICENSE=
+      
+    expose:
+      - "80"
+    volumes:
+      # LAM 配置文件持久化目录
+      - ./lam/config:/var/lib/ldap-account-manager/config
+    depends_on:
+      - openldap-server
+
+  nginx:
+    image: nginx:alpine
+    container_name: lam-nginx
+    restart: unless-stopped
+    ports:
+      - "${NGINX_HTTP_PORT}:80"
+      - "${NGINX_HTTPS_PORT}:443"
+      - "${NGINX_LDAP_PORT}:389"
+      - "${NGINX_LDAPS_PORT}:636"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./nginx/logs:/var/log/nginx
+      - ./certs:/etc/nginx/certs:ro
+    depends_on:
+      - lam
