@@ -68,7 +68,7 @@ cn: Replica Admin
 sn: Replica
 givenName: Admin
 mail: replica@example.com
-uidNumber: 12000
+uidNumber: 10001
 gidNumber: 12000
 homeDirectory: /home/replica_admin
 loginShell: /bin/bash
