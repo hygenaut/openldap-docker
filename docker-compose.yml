@@ -155,15 +155,18 @@ services:
       # 要记录的属性
       - LDAP_ACCESSLOG_LOGOLDATTR=objectClass
       
-      # ==================== 同步提供者覆盖（主从复制） ====================
-      # 是否启用同步提供者（主服务器需要）
+      # ==================== 多主复制配置 ====================
+      # 是否启用同步提供者（多主复制必需）
       - LDAP_ENABLE_SYNCPROV=yes
       
       # 检查点频率（操作数 分钟数）
       - LDAP_SYNCPROV_CHECKPOINT=10 1
       
       # 会话日志最大条目数
-      - LDAP_SYNCPROV_SESSIONLOG=100
+      - LDAP_SYNCPROV_SESSIONLOG=1000
+      
+      # 当前服务器 ID（每个节点必须唯一）
+      - LDAP_SERVER_ID=${SERVER_ID:-1}
       
       # ==================== FIPS 配置 ====================
       # OpenSSL 是否运行在 FIPS 模式

@@ -55,7 +55,25 @@ dn: cn=replica,ou=groups,dc=example,dc=com
 objectClass: posixGroup
 cn: replica
 gidNumber: 12000
+memberUid: replica_admin
 description: Replication user
+
+# 复制管理员用户（replica 组）
+dn: uid=replica_admin,ou=people,dc=example,dc=com
+objectClass: inetOrgPerson
+objectClass: posixAccount
+objectClass: shadowAccount
+uid: replica_admin
+cn: Replica Admin
+sn: Replica
+givenName: Admin
+mail: replica@example.com
+uidNumber: 12000
+gidNumber: 12000
+homeDirectory: /home/replica_admin
+loginShell: /bin/bash
+userPassword: ChangeMe123!
+description: Replication Administrator
 
 # 群晖兼容别名（cn=users 指向 ou=people）
 dn: cn=users,dc=example,dc=com

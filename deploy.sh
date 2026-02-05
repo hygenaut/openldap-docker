@@ -9,17 +9,18 @@ show_help() {
 用法: $SCRIPT_NAME [命令] [选项]
 
 命令:
-  init              完整部署流程（初始化 + 启动 + 配置证书 + 加载 Schema + 配置 ACL）
-  start             启动服务
-  stop              停止服务
-  restart           重启服务
-  delete            删除所有数据和容器
-  reload-certs      重新加载 TLS 证书
-  load-schemas      加载自定义 Schema
-  configure-acl     配置 LDAP ACL 访问控制
-  generate-ldif     从模板生成 LDIF 文件（使用 -f 强制覆盖）
-  set-folders-owner 设置目录权限
-  help              显示此帮助信息
+  init                完整部署流程（初始化 + 启动 + 配置 + 复制）
+  start               启动服务
+  stop                停止服务
+  restart             重启服务
+  delete              删除所有数据和容器
+  reload-certs        重新加载 TLS 证书
+  load-schemas        加载自定义 Schema
+  configure-acl       配置 LDAP ACL 访问控制
+  configure-replication 配置多主复制（自动检测 .env 配置）
+  generate-ldif       从模板生成 LDIF 文件（使用 -f 强制覆盖）
+  set-folders-owner   设置目录权限
+  help                显示此帮助信息
 
 不带参数运行时显示此帮助信息
 EOF
@@ -69,6 +70,7 @@ cmd_init() {
     cmd_reload_certs
     cmd_load_schemas
     cmd_configure_acl
+    cmd_configure_replication
     show_completion
 }
 
@@ -195,6 +197,19 @@ cmd_configure_acl() {
     echo "[完成] ACL 配置完成"
 }
 
+# 配置复制
+cmd_configure_replication() {
+    echo "==> 配置 LDAP 复制"
+    
+    if [ ! -f scripts/configure-replication.sh ]; then
+        echo "[错误] scripts/configure-replication.sh 不存在"
+        exit 1
+    fi
+    
+    bash scripts/configure-replication.sh
+}
+
+
 # 重新加载 TLS 证书
 cmd_reload_certs() {
     echo "==> 配置 TLS 证书"
@@ -263,6 +278,10 @@ main() {
             ;;
         configure-acl)
             cmd_configure_acl
+            ;;
+        configure-replication)
+            check_env
+            cmd_configure_replication
             ;;
         generate-ldif)
             check_env

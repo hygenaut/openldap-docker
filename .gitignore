@@ -14,3 +14,4 @@ ldifs/*.ldif
 lam/
 
 certs/
+test/
